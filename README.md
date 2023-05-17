@@ -7,6 +7,10 @@
 - **Contains list of all existing warnings**
     - Easy to disable, just uncomment a line
 
+## Where?
+- `cmake/*.cmake`
+
+
 ## Usage
 ```
 # Include this in a CMakeLists.txt

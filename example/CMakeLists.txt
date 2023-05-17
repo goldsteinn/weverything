@@ -42,7 +42,7 @@ if(${RESULT_CACHE_ID_C_SFA})
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fstrict-flex-arrays=1")
 endif()
 
-include(../warn-everything.cmake)
+include(../cmake/warn-everything.cmake)
 
 warn_everything(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
 
