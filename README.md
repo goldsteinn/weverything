@@ -10,6 +10,15 @@
 ## Where?
 - `cmake/*.cmake`
 
+## Why?
+- Sometimes it interesting to see all the warnings active. For clang
+  thats not to hard because of the builtin `-Weverything` flag. For
+  GCC no such flag exists. Like flags change by version, and there
+  didn't seem to be any clean way to enable/disable all warnings at
+  will without a billion version checks. This isn't the worlds
+  cleanest thing, but its better than the alternatives I'm aware of.
+- **This is probably best not used for standard builds**
+
 
 ## Usage
 ```
