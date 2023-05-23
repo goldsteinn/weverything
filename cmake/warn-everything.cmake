@@ -26,7 +26,7 @@
 # version is default set i.e:
 #   -Wstrict-aliasing=n default is 1
 #   -Wimplicit-fallthrough=n default is 5
-# To disable warnings uncomment the warning name in the '*_OFF'
+# To disable warnings comment the warning name in the '*_ACTIVATED'
 # variables.
 #
 # Some warnings are only meaningful (or possible) we a specific user
@@ -79,10 +79,11 @@
 #
 
 cmake_path(GET CMAKE_CURRENT_LIST_FILE PARENT_PATH WARN_EVERYTHING_MODULE_INCLUDE_PATH)
-function(warn_everything WARNINGS_OUT_CXX WARNINGS_OUT_C)
+function(warn_everything_list WARNINGS_OUT_CXX WARNINGS_OUT_C)
   function(warn_everything_filter_warnings WARNINGS SKIP_WARNINGS DST)
     set(TMP)
     foreach(WARNING IN LISTS ${WARNINGS})
+
       list(FIND ${SKIP_WARNINGS} ${WARNING} IS_IN)
       if(${IS_IN} LESS 0)
         message(VERBOSE "-- Use Flag : ${WARNING}")
@@ -101,21 +102,45 @@ function(warn_everything WARNINGS_OUT_CXX WARNINGS_OUT_C)
   include(${WARN_EVERYTHING_MODULE_INCLUDE_PATH}/warn-everything-clang.cmake)
   include(${WARN_EVERYTHING_MODULE_INCLUDE_PATH}/warn-everything-default.cmake)
 
-  warn_everything_gcc(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
-  warn_everything_clang(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
+  warn_everything_gcc(WARN_EVERYTHING_BASE_CXX WARN_EVERYTHING_BASE_C)
+  warn_everything_clang(WARN_EVERYTHING_BASE_CXX WARN_EVERYTHING_BASE_C)
 
   # Only does anything if we didn't get warnings for GCC/Clang
-  warn_everything_fallback_if_needed(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
+  warn_everything_fallback_if_needed(WARN_EVERYTHING_BASE_CXX WARN_EVERYTHING_BASE_C)
 
-  list(LENGTH WARN_EVERYTHING_C WARN_EVERYTHING_C_LENGTH)
+  warn_everything_filter_warnings(WARN_EVERYTHING_BASE_CXX FILTER WARN_EVERYTHING_CXX)
+  warn_everything_filter_warnings(WARN_EVERYTHING_BASE_C FILTER WARN_EVERYTHING_C)
+
   list(LENGTH WARN_EVERYTHING_CXX WARN_EVERYTHING_CXX_LENGTH)
+  list(LENGTH WARN_EVERYTHING_C WARN_EVERYTHING_C_LENGTH)
 
-  message(STATUS "Found ${WARN_EVERYTHING_C_LENGTH} C warnings.")
   message(STATUS "Found ${WARN_EVERYTHING_CXX_LENGTH} CXX warnings.")
-
-  string(REPLACE ";" " " WARN_EVERYTHING_C "${WARN_EVERYTHING_C}")
-  string(REPLACE ";" " " WARN_EVERYTHING_CXX "${WARN_EVERYTHING_CXX}")
+  message(STATUS "Found ${WARN_EVERYTHING_C_LENGTH} C warnings.")
 
   set(${WARNINGS_OUT_CXX} ${WARN_EVERYTHING_CXX} PARENT_SCOPE)
   set(${WARNINGS_OUT_C} ${WARN_EVERYTHING_C} PARENT_SCOPE)
+endfunction()
+
+function(warn_everything WARNINGS_OUT_CXX WARNINGS_OUT_C)
+  warn_everything_list(TMP_WARNINGS_OUT_CXX TMP_WARNINGS_OUT_C)
+
+  string(REPLACE ";" " " TMP_WARNINGS_OUT_CXX "${TMP_WARNINGS_OUT_CXX}")
+  string(REPLACE ";" " " TMP_WARNINGS_OUT_C "${TMP_WARNINGS_OUT_C}")
+
+  set(${WARNINGS_OUT_CXX} ${TMP_WARNINGS_OUT_CXX} PARENT_SCOPE)
+  set(${WARNINGS_OUT_C} ${TMP_WARNINGS_OUT_C} PARENT_SCOPE)
+endfunction()
+
+function(warn_everything_filtered REGEX_FILTERS WARNINGS_OUT_CXX WARNINGS_OUT_C)
+  warn_everything_list(TMP_WARNINGS_OUT_CXX TMP_WARNINGS_OUT_C)
+  foreach(ITEM IN LISTS ${REGEX_FILTERS})
+    list(FILTER TMP_WARNINGS_OUT_CXX EXCLUDE REGEX ${ITEM})
+    list(FILTER TMP_WARNINGS_OUT_C EXCLUDE REGEX ${ITEM})
+  endforeach()
+
+  string(REPLACE ";" " " TMP_WARNINGS_OUT_CXX "${TMP_WARNINGS_OUT_CXX}")
+  string(REPLACE ";" " " TMP_WARNINGS_OUT_C "${TMP_WARNINGS_OUT_C}")
+
+  set(${WARNINGS_OUT_CXX} ${TMP_WARNINGS_OUT_CXX} PARENT_SCOPE)
+  set(${WARNINGS_OUT_C} ${TMP_WARNINGS_OUT_C} PARENT_SCOPE)
 endfunction()

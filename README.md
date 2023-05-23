@@ -19,11 +19,27 @@
   cleanest thing, but its better than the alternatives I'm aware of.
 - **This is probably best not used for standard builds**
 
+## API
+```
+# To get warnings as space seperated string
+warn_everything(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
+#
+# To get list of warnings
+warn_everything_list(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
+#
+# To get warnings filtering OUT by regex match of first argument
+set(RE_FILTER
+  -Wsuggest-attribute=*
+  -W*overflow*
+)
+warn_everything_list(RE_FILTER WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
+```
 
 ## Usage
 ```
 # Include this in a CMakeLists.txt
 include(warn-everything.cmake)
+# To get warnings as space seperated string
 warn_everything(WARN_EVERYTHING_CXX WARN_EVERYTHING_C)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARN_EVERYTHING_C}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_EVERYTHING_CXX}")
@@ -35,32 +51,35 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARN_EVERYTHING_CXX}")
 
 - Enabled
 ```
-  # All of these are enabled (not turned OFF)
-  set(GCC_4_4_7_GENERIC_WARNING_FLAGS_OFF
-    # ${WARN_LARGER_THAN}
-    # -Wabi
-    # -Waddress
-    # -Waggregate-return
-    # -Wall
-    # -Warray-bounds
+  # All of these are enabled
+  set(GCC_4_4_7_GENERIC_WARNING_FLAGS_ACTIVATED
+    ${WARN_LARGER_THAN}
+    -Wabi
+    -Waddress
+    -Waggregate-return
+    -Wall
+    -Warray-bounds
+    -Wattributes
     # ...
   )
 ```
 - Disabled
 ```
   # -WAddress and -Warray-bounds are disabled, the rest are still on.
-  set(GCC_4_4_7_GENERIC_WARNING_FLAGS_OFF
-    # ${WARN_LARGER_THAN}
-    # -Wabi
-     -Waddress
-    # -Waggregate-return
-    # -Wall
-     -Warray-bounds
+  # All of these are enabled (not turned OFF)
+  set(GCC_4_4_7_GENERIC_WARNING_FLAGS_ACTIVATED
+    ${WARN_LARGER_THAN}
+    -Wabi
+    # -Waddress
+    -Waggregate-return
+    -Wall
+    # -Warray-bounds
+    -Wattributes
     # ...
   )
 ```
 
-**For GCC, you should only ever need to modify '*_OFF' variables.**
+**For GCC, you should only ever need to modify '*_ACTIVATED' variables.**
 
 ### Clang:`warn-everything-clang.cmake`
 
